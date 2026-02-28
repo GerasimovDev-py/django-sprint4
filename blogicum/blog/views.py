@@ -77,8 +77,8 @@ class PostDetailView(DetailView):
         )
         if (post.author != self.request.user
                 and (post.pub_date > timezone.now()
-                    or not post.is_published
-                    or not post.category.is_published)):
+                     or not post.is_published
+                     or not post.category.is_published)):
             raise Http404
         return post
 
