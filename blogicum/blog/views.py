@@ -20,6 +20,7 @@ User = get_user_model()
 
 class BasePostView:
     """Базовый класс для представлений постов."""
+
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
@@ -28,6 +29,7 @@ class BasePostView:
 
 class BaseCommentView:
     """Базовый класс для представлений комментариев."""
+
     model = Comment
     form_class = CommentForm
     pk_url_kwarg = 'comment_id'
@@ -65,6 +67,7 @@ class CommentAuthorRequiredMixin(UserPassesTestMixin):
 
 def get_published_posts():
     """Возвращает QuerySet опубликованных постов."""
+
     return Post.objects.filter(
         pub_date__lte=timezone.now(),
         category__is_published=True,
@@ -128,6 +131,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 class BasePostEditView(AuthorRequiredMixin, UpdateView):
     """Базовый класс для редактирования и удаления постов."""
+
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
@@ -169,6 +173,7 @@ def add_comment(request, post_id):
 
 class BaseCommentEditView(CommentAuthorRequiredMixin, UpdateView):
     """Базовый класс для редактирования комментариев."""
+    
     model = Comment
     form_class = CommentForm
     pk_url_kwarg = 'comment_id'
