@@ -32,7 +32,10 @@
     {% if user.is_authenticated %}
       <form method="post" action="{% url 'blog:add_comment' post.id %}" class="mb-4">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="mb-3">
+          <label for="text" class="form-label">Комментарий:</label>
+          <textarea name="text" id="text" class="form-control" rows="3" required></textarea>
+        </div>
         <button type="submit" class="btn btn-primary">Отправить</button>
       </form>
     {% endif %}
@@ -47,12 +50,14 @@
             </small>
           </p>
           {% if user == comment.author %}
-            <a href="{% url 'blog:edit_comment' post.id comment.id %}" class="btn btn-sm btn-primary">
-              Редактировать
-            </a>
-            <a href="{% url 'blog:delete_comment' post.id comment.id %}" class="btn btn-sm btn-danger">
-              Удалить
-            </a>
+            <div class="mt-2">
+              <a href="{% url 'blog:edit_comment' post.id comment.id %}" class="btn btn-sm btn-primary">
+                Редактировать
+              </a>
+              <a href="{% url 'blog:delete_comment' post.id comment.id %}" class="btn btn-sm btn-danger">
+                Удалить
+              </a>
+            </div>
           {% endif %}
         </div>
       </div>
