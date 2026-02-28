@@ -32,9 +32,7 @@
     {% if user.is_authenticated %}
       <form method="post" action="{% url 'blog:add_comment' post.id %}" class="mb-4">
         {% csrf_token %}
-        <div class="mb-3">
-          <textarea name="text" class="form-control" rows="3" placeholder="Ваш комментарий..." required></textarea>
-        </div>
+        {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Отправить</button>
       </form>
     {% endif %}
