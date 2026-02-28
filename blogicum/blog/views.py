@@ -75,10 +75,10 @@ class PostDetailView(DetailView):
             Post.objects.select_related('author', 'category', 'location'),
             id=self.kwargs['post_id']
         )
-        if (post.author != self.request.user and (
-                post.pub_date > timezone.now() or
-                not post.is_published or
-                not post.category.is_published)):
+        if (post.author != self.request.user
+                and (post.pub_date > timezone.now()
+                    or not post.is_published
+                    or not post.category.is_published)):
             raise Http404
         return post
 
