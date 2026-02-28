@@ -67,7 +67,6 @@ class CommentAuthorRequiredMixin(UserPassesTestMixin):
 
 def get_published_posts():
     """Возвращает QuerySet опубликованных постов."""
-
     return Post.objects.filter(
         pub_date__lte=timezone.now(),
         category__is_published=True,
@@ -173,7 +172,7 @@ def add_comment(request, post_id):
 
 class BaseCommentEditView(CommentAuthorRequiredMixin, UpdateView):
     """Базовый класс для редактирования комментариев."""
-    
+
     model = Comment
     form_class = CommentForm
     pk_url_kwarg = 'comment_id'
