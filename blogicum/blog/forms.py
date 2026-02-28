@@ -3,8 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from .models import Post, Comment
 
-
 User = get_user_model()
+
 
 class PostForm(forms.ModelForm):
     class Meta:
@@ -30,7 +30,10 @@ class CommentForm(forms.ModelForm):
 class UserRegistrationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+        fields = (
+            'username', 'email', 'first_name',
+            'last_name', 'password1', 'password2'
+        )
 
 
 class ProfileEditForm(forms.ModelForm):

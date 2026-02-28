@@ -1,6 +1,9 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    ListView, DetailView, CreateView,
+    UpdateView, DeleteView
+)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -8,11 +11,10 @@ from django.db.models import Count
 from django.http import Http404
 from django.conf import settings
 from .models import Post, Comment, Category
-from .forms import PostForm, CommentForm
 from .forms import PostForm, CommentForm, ProfileEditForm
 
-
 User = get_user_model()
+
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     model = User
@@ -24,6 +26,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('blog:profile', args=[self.request.user.username])
+
 
 class AuthorRequiredMixin(UserPassesTestMixin):
     def test_func(self):
@@ -72,17 +75,19 @@ class PostDetailView(DetailView):
             Post.objects.select_related('author', 'category', 'location'),
             id=self.kwargs['post_id']
         )
-        if (post.author != self.request.user and 
-            (post.pub_date > timezone.now() or 
-             not post.is_published or 
-             not post.category.is_published)):
+        if (post.author != self.request.user and (
+                post.pub_date > timezone.now() or
+                not post.is_published or
+                not post.category.is_published)):
             raise Http404
         return post
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = CommentForm()
-        context['comments'] = self.object.comments.select_related('author')
+        context['comments'] = self.object.comments.select_related(
+            'author'
+        ).order_by('created_at')
         return context
 
 
@@ -111,7 +116,7 @@ class PostUpdateView(AuthorRequiredMixin, UpdateView):
 
 class PostDeleteView(AuthorRequiredMixin, DeleteView):
     model = Post
-    template_name = 'blog/delete.html' 
+    template_name = 'blog/delete.html'
     pk_url_kwarg = 'post_id'
 
     def get_context_data(self, **kwargs):
@@ -133,6 +138,11 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         form.instance.post_id = self.kwargs['post_id']
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
+        return context
+
     def get_success_url(self):
         return reverse('blog:post_detail', args=[self.kwargs['post_id']])
 
@@ -142,6 +152,11 @@ class CommentUpdateView(CommentAuthorRequiredMixin, UpdateView):
     form_class = CommentForm
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
+        return context
 
     def get_success_url(self):
         return reverse('blog:post_detail', args=[self.kwargs['post_id']])

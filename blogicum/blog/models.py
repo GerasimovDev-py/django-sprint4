@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-
 User = get_user_model()
+
 
 class Post(models.Model):
     title = models.CharField('Заголовок', max_length=256)
