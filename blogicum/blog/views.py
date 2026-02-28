@@ -146,6 +146,14 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
         return context
 
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
 
 class CommentUpdateView(CommentAuthorRequiredMixin, UpdateView):
     model = Comment

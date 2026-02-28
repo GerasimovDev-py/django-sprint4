@@ -34,6 +34,9 @@ class CommentForm(forms.ModelForm):
                 'placeholder': 'Ваш комментарий...'
             }),
         }
+        labels = {
+            'text': 'Текст комментария',
+        }
 
 
 class UserRegistrationForm(UserCreationForm):
