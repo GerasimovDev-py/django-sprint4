@@ -138,13 +138,13 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         form.instance.post_id = self.kwargs['post_id']
         return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse('blog:post_detail', args=[self.kwargs['post_id']])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
         return context
-
-    def get_success_url(self):
-        return reverse('blog:post_detail', args=[self.kwargs['post_id']])
 
 
 class CommentUpdateView(CommentAuthorRequiredMixin, UpdateView):
@@ -153,13 +153,13 @@ class CommentUpdateView(CommentAuthorRequiredMixin, UpdateView):
     template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
 
+    def get_success_url(self):
+        return reverse('blog:post_detail', args=[self.kwargs['post_id']])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
         return context
-
-    def get_success_url(self):
-        return reverse('blog:post_detail', args=[self.kwargs['post_id']])
 
 
 class CommentDeleteView(CommentAuthorRequiredMixin, DeleteView):
@@ -170,8 +170,6 @@ class CommentDeleteView(CommentAuthorRequiredMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment'] = self.get_object()
-        if 'form' in context:
-            del context['form']
         return context
 
     def get_success_url(self):

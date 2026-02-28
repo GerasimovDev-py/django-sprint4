@@ -13,8 +13,13 @@ class PostForm(forms.ModelForm):
         widgets = {
             'pub_date': forms.DateTimeInput(
                 format='%Y-%m-%dT%H:%M',
-                attrs={'type': 'datetime-local'}
+                attrs={'type': 'datetime-local', 'class': 'form-control'}
             ),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'text': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'location': forms.Select(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -23,7 +28,11 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ('text',)
         widgets = {
-            'text': forms.Textarea(attrs={'rows': 3}),
+            'text': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Ваш комментарий...'
+            }),
         }
 
 
@@ -34,9 +43,21 @@ class UserRegistrationForm(UserCreationForm):
             'username', 'email', 'first_name',
             'last_name', 'password1', 'password2'
         )
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }

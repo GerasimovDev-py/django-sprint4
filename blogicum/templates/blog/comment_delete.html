@@ -9,9 +9,10 @@
         </div>
         <div class="card-body">
           <p>Вы уверены, что хотите удалить этот комментарий?</p>
-          <div class="alert alert-info">
+          <div class="alert alert-secondary">
             <p>{{ comment.text }}</p>
             <p class="text-muted">Автор: {{ comment.author.username }}</p>
+            <p class="text-muted">Дата: {{ comment.created_at|date:"d E Y H:i" }}</p>
           </div>
           <form method="post">
             {% csrf_token %}

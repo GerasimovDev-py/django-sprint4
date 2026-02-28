@@ -1,38 +1,37 @@
 {% extends "base.html" %}
-{% load django_bootstrap5 %}
 {% block title %}
-  {% if '/edit_comment/' in request.path %}
-    Редактирование комментария
+  {% if request.resolver_match.view_name == 'blog:add_comment' %}
+    Добавление комментария
   {% else %}
-    Удаление комментария
+    Редактирование комментария
   {% endif %}
 {% endblock %}
 {% block content %}
-  {% if user.is_authenticated %}
-    <div class="col d-flex justify-content-center">
-      <div class="card" style="width: 40rem;">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
         <div class="card-header">
-          {% if '/edit_comment/' in request.path %}
-            Редактирование комментария
+          {% if request.resolver_match.view_name == 'blog:add_comment' %}
+            Новый комментарий
           {% else %}
-            Удаление комментария
+            Редактирование комментария
           {% endif %}
         </div>
         <div class="card-body">
-          <form method="post"
-            {% if '/edit_comment/' in request.path %}
-              action="{% url 'blog:edit_comment' comment.post_id comment.id %}"
-            {% endif %}>
+          <form method="post">
             {% csrf_token %}
-            {% if not '/delete_comment/' in request.path %}
-              {% bootstrap_form form %}
-            {% else %}
-              <p>{{ comment.text }}</p>
-            {% endif %}
-            {% bootstrap_button button_type="submit" content="Отправить" %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">
+              {% if request.resolver_match.view_name == 'blog:add_comment' %}
+                Отправить
+              {% else %}
+                Сохранить
+              {% endif %}
+            </button>
+            <a href="{% url 'blog:post_detail' post.id %}" class="btn btn-secondary">Отмена</a>
           </form>
         </div>
       </div>
     </div>
-  {% endif %}
+  </div>
 {% endblock %}
