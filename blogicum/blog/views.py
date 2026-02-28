@@ -1,20 +1,36 @@
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Count
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import (
     ListView, DetailView, CreateView,
     UpdateView, DeleteView
 )
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.db.models import Count
-from django.http import Http404
+
 from django.conf import settings
 from .models import Post, Comment, Category
 from .forms import PostForm, CommentForm, ProfileEditForm
 
 User = get_user_model()
+
+
+class BasePostView:
+    """Базовый класс для представлений постов."""
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/create.html'
+    pk_url_kwarg = 'post_id'
+
+
+class BaseCommentView:
+    """Базовый класс для представлений комментариев."""
+    model = Comment
+    form_class = CommentForm
+    pk_url_kwarg = 'comment_id'
 
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
@@ -47,6 +63,19 @@ class CommentAuthorRequiredMixin(UserPassesTestMixin):
         return redirect('blog:post_detail', post_id=self.kwargs['post_id'])
 
 
+def get_published_posts():
+    """Возвращает QuerySet опубликованных постов."""
+    return Post.objects.filter(
+        pub_date__lte=timezone.now(),
+        category__is_published=True,
+        is_published=True
+    ).select_related(
+        'author', 'category', 'location'
+    ).annotate(
+        comment_count=Count('comments')
+    )
+
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/index.html'
@@ -54,15 +83,7 @@ class PostListView(ListView):
     paginate_by = settings.POSTS_PER_PAGE
 
     def get_queryset(self):
-        return Post.objects.filter(
-            pub_date__lte=timezone.now(),
-            category__is_published=True,
-            is_published=True
-        ).select_related(
-            'author', 'category', 'location'
-        ).annotate(
-            comment_count=Count('comments')
-        ).order_by('-pub_date')
+        return get_published_posts().order_by('-pub_date')
 
 
 class PostDetailView(DetailView):
@@ -105,12 +126,15 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         return reverse('blog:profile', args=[self.request.user.username])
 
 
-class PostUpdateView(AuthorRequiredMixin, UpdateView):
+class BasePostEditView(AuthorRequiredMixin, UpdateView):
+    """Базовый класс для редактирования и удаления постов."""
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
 
+
+class PostUpdateView(BasePostEditView):
     def get_success_url(self):
         return reverse('blog:post_detail', args=[self.kwargs['post_id']])
 
@@ -143,11 +167,15 @@ def add_comment(request, post_id):
     return redirect('blog:post_detail', post_id=post_id)
 
 
-class CommentUpdateView(CommentAuthorRequiredMixin, UpdateView):
+class BaseCommentEditView(CommentAuthorRequiredMixin, UpdateView):
+    """Базовый класс для редактирования комментариев."""
     model = Comment
     form_class = CommentForm
-    template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
+
+
+class CommentUpdateView(BaseCommentEditView):
+    template_name = 'blog/comment.html'
 
     def get_success_url(self):
         return reverse('blog:post_detail', args=[self.kwargs['post_id']])

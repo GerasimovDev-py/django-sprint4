@@ -3,9 +3,30 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+MAX_LENGTH_256 = 256
+MAX_LENGTH_20 = 20
 
-class Post(models.Model):
-    title = models.CharField('Заголовок', max_length=256)
+
+class CreatedAtModel(models.Model):
+    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
+
+    class Meta:
+        abstract = True
+
+
+class PublishedModel(CreatedAtModel):
+    is_published = models.BooleanField(
+        'Опубликовано',
+        default=True,
+        help_text='Снимите галочку, чтобы скрыть публикацию.'
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Post(PublishedModel):
+    title = models.CharField('Заголовок', max_length=MAX_LENGTH_256)
     text = models.TextField('Текст')
     pub_date = models.DateTimeField('Дата публикации')
     author = models.ForeignKey(
@@ -19,12 +40,14 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
+        related_name='posts',
         verbose_name='Местоположение'
     )
     category = models.ForeignKey(
         'Category',
         on_delete=models.SET_NULL,
         null=True,
+        related_name='posts',
         verbose_name='Категория'
     )
     image = models.ImageField(
@@ -32,24 +55,19 @@ class Post(models.Model):
         upload_to='posts_images/',
         blank=True
     )
-    is_published = models.BooleanField(
-        'Опубликовано',
-        default=True,
-        help_text='Снимите галочку, чтобы скрыть публикацию.'
-    )
-    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
 
     class Meta:
         ordering = ['-pub_date']
         verbose_name = 'публикация'
         verbose_name_plural = 'публикации'
+        default_related_name = 'posts'
 
     def __str__(self):
         return self.title
 
 
-class Category(models.Model):
-    title = models.CharField('Заголовок', max_length=256)
+class Category(PublishedModel):
+    title = models.CharField('Заголовок', max_length=MAX_LENGTH_256)
     description = models.TextField('Описание')
     slug = models.SlugField(
         'Идентификатор',
@@ -59,8 +77,6 @@ class Category(models.Model):
             'латиницы, цифры, дефис и подчёркивание.'
         )
     )
-    is_published = models.BooleanField('Опубликовано', default=True)
-    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
 
     class Meta:
         verbose_name = 'категория'
@@ -70,10 +86,8 @@ class Category(models.Model):
         return self.title
 
 
-class Location(models.Model):
-    name = models.CharField('Название места', max_length=256)
-    is_published = models.BooleanField('Опубликовано', default=True)
-    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
+class Location(PublishedModel):
+    name = models.CharField('Название места', max_length=MAX_LENGTH_256)
 
     class Meta:
         verbose_name = 'местоположение'
@@ -83,7 +97,7 @@ class Location(models.Model):
         return self.name
 
 
-class Comment(models.Model):
+class Comment(CreatedAtModel):
     text = models.TextField('Текст комментария')
     post = models.ForeignKey(
         Post,
@@ -95,7 +109,6 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    created_at = models.DateTimeField('Добавлено', auto_now_add=True)
 
     class Meta:
         ordering = ['created_at']
