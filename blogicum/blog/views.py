@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import (
     ListView, DetailView, CreateView,
@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.db.models import Count
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
 from django.conf import settings
 from .models import Post, Comment, Category
 from .forms import PostForm, CommentForm, ProfileEditForm
