@@ -136,16 +136,17 @@ class BasePostEditView(AuthorRequiredMixin, UpdateView):
     template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
 
-
-class PostUpdateView(BasePostEditView):
     def get_success_url(self):
         return reverse('blog:post_detail', args=[self.kwargs['post_id']])
 
 
-class PostDeleteView(AuthorRequiredMixin, DeleteView):
-    model = Post
+class PostUpdateView(BasePostEditView):
+    pass
+
+
+class PostDeleteView(BasePostEditView, DeleteView):
+    """Представление для удаления поста."""
     template_name = 'blog/delete.html'
-    pk_url_kwarg = 'post_id'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -176,14 +177,13 @@ class BaseCommentEditView(CommentAuthorRequiredMixin, UpdateView):
     model = Comment
     form_class = CommentForm
     pk_url_kwarg = 'comment_id'
-
-
-class CommentUpdateView(BaseCommentEditView):
     template_name = 'blog/comment.html'
 
     def get_success_url(self):
         return reverse('blog:post_detail', args=[self.kwargs['post_id']])
 
+
+class CommentUpdateView(BaseCommentEditView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['post'] = get_object_or_404(Post, id=self.kwargs['post_id'])
@@ -191,6 +191,8 @@ class CommentUpdateView(BaseCommentEditView):
 
 
 class CommentDeleteView(CommentAuthorRequiredMixin, DeleteView):
+    """Представление для удаления комментария."""
+
     model = Comment
     template_name = 'blog/comment_delete.html'
     pk_url_kwarg = 'comment_id'
@@ -198,6 +200,8 @@ class CommentDeleteView(CommentAuthorRequiredMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comment'] = self.get_object()
+        if 'form' in context:
+            del context['form']
         return context
 
     def get_success_url(self):
