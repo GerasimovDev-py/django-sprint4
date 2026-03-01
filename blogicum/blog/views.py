@@ -146,6 +146,7 @@ class PostUpdateView(BasePostEditView):
 
 class PostDeleteView(BasePostEditView, DeleteView):
     """Представление для удаления поста."""
+    
     template_name = 'blog/delete.html'
 
     def get_context_data(self, **kwargs):
